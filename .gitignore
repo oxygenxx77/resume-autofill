@@ -1,0 +1,13 @@
+# 白名单：默认忽略一切，只放行扩展代码和文档
+/*
+!/.gitignore
+!/README.md
+!/manifest.json
+!/*.js
+!/*.html
+!/icons/
+!/lib/
+!/docs/
+
+.DS_Store
+*.bak

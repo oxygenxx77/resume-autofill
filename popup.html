@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简历自动填充</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+      color: #1f2937;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 650;
+      margin-bottom: 14px;
+    }
+
+    button {
+      width: 100%;
+      height: 38px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .primary {
+      border: none;
+      background: #c4451f;
+      color: #fff;
+    }
+
+    .primary:hover {
+      background: #a83818;
+    }
+
+    .primary:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    .secondary {
+      margin-top: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #374151;
+    }
+
+    .secondary:hover {
+      background: #f9fafb;
+    }
+
+    #status {
+      margin-top: 12px;
+      min-height: 18px;
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .link {
+      height: auto;
+      margin-top: 10px;
+      border: none;
+      background: none;
+      color: #9ca3af;
+      font-size: 12px;
+      font-weight: 400;
+      text-decoration: underline;
+    }
+
+    /* 求职助手联动区 */
+    .jh {
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fafafa;
+      font-size: 12px;
+    }
+
+    .jh-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .jh-badge {
+      font-weight: 400;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .jh-badge.ok {
+      color: #15803d;
+    }
+
+    .jh select,
+    .jh textarea {
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    .jh select {
+      height: 30px;
+      padding: 0 6px;
+    }
+
+    .jh textarea {
+      min-height: 72px;
+      margin-top: 6px;
+      padding: 6px 8px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .jh-info {
+      margin-top: 6px;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .jh-warn {
+      margin-top: 4px;
+      color: #b45309;
+      line-height: 1.5;
+    }
+
+    .jh-check {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      color: #4b5563;
+      cursor: pointer;
+    }
+
+    .jh .small {
+      height: 30px;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .jh details {
+      margin-top: 8px;
+    }
+
+    .jh summary {
+      color: #4b5563;
+      cursor: pointer;
+    }
+
+    .jh .link {
+      margin-top: 4px;
+    }
+
+    .jh-offline {
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    #diag-out {
+      display: none;
+      width: 100%;
+      height: 120px;
+      margin-top: 8px;
+      font-size: 11px;
+      font-family: Menlo, monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 简历自动填充 <small id="ver" style="font-size:11px;color:#9ca3af;font-weight:400"></small></h1>
+  <section class="jh" id="jh" hidden>
+    <div class="jh-head">🧭 求职助手 <span class="jh-badge" id="jh-badge"></span></div>
+    <select id="jh-job"></select>
+    <div class="jh-info" id="jh-info"></div>
+    <div class="jh-warn" id="jh-warn" hidden></div>
+    <div id="jh-tools" hidden>
+      <label class="jh-check"><input type="checkbox" id="jh-use-job" checked> 应聘岗位、意向城市按这个岗位填</label>
+      <button class="secondary small" id="jh-gen" type="button">✨ AI 按岗位写自我评价</button>
+      <textarea id="jh-summary" placeholder="生成后可以修改；填充时用它替换简历里的自我评价，清空则用原来的" hidden></textarea>
+      <details>
+        <summary>AI 回答开放题</summary>
+        <textarea id="jh-question" placeholder="粘贴题目，例如：你为什么选择我们公司？（300字以内）"></textarea>
+        <button class="secondary small" id="jh-answer-btn" type="button">生成回答</button>
+        <textarea id="jh-answer" hidden></textarea>
+        <button class="link" id="jh-copy" type="button" hidden>复制回答</button>
+      </details>
+    </div>
+  </section>
+  <div class="jh-offline" id="jh-offline" hidden>求职助手没开：打开后这里可以识别岗位、AI 写自我评价、一键标记已投递</div>
+
+  <button class="primary" id="fill-btn" type="button">一键填充当前页</button>
+  <button class="secondary" id="jh-applied" type="button" hidden>✓ 投完了，在求职助手标记已投递</button>
+  <button class="secondary" id="edit-btn" type="button">上传 PDF / 编辑简历</button>
+  <div id="status"></div>
+  <button class="link" id="diag-btn" type="button">填不上？导出诊断信息</button>
+  <textarea id="diag-out" readonly></textarea>
+  <script src="jobhunter.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

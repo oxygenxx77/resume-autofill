@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的简历</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+      color: #1f2937;
+      padding: 40px 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 650;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 650;
+      margin: 28px 0 14px;
+      padding-top: 18px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    h2 .muted {
+      font-size: 12px;
+      font-weight: 400;
+      color: #9ca3af;
+      margin-left: 6px;
+    }
+
+    .lead {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+    }
+
+    input,
+    select {
+      height: 40px;
+      padding: 0 12px;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      height: auto;
+      margin-right: 4px;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #c4451f;
+      box-shadow: 0 0 0 3px rgba(196, 69, 31, 0.12);
+    }
+
+    input:disabled {
+      background: #f9fafb;
+      color: #9ca3af;
+    }
+
+    .inline {
+      display: inline-flex;
+      align-items: center;
+      margin: 6px 0 0;
+      font-size: 12px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .pdf-box {
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+
+    .pdf-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pdf-row input[type="file"] {
+      height: auto;
+      border: none;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    #pdf-hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .exp-card {
+      border: 1px solid #ececec;
+      border-radius: 10px;
+      padding: 14px 14px 4px;
+      margin-bottom: 12px;
+      background: #fcfcfc;
+    }
+
+    .exp-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    button {
+      height: 42px;
+      border: none;
+      border-radius: 8px;
+      background: #c4451f;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0 16px;
+    }
+
+    button:hover {
+      background: #a83818;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    button.ghost {
+      background: #fff;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    button.ghost:hover {
+      background: #f9fafb;
+    }
+
+    button.link {
+      height: auto;
+      padding: 0;
+      background: none;
+      color: #b91c1c;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .add-exp {
+      width: 100%;
+      height: 38px;
+      font-size: 14px;
+    }
+
+    .submit {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    textarea.small {
+      min-height: 64px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .sync {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .sync-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .toast {
+      margin-top: 14px;
+      min-height: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #15803d;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📝 我的简历</h1>
+    <p class="lead">上传 PDF 自动抽出字段，核对、补全后点保存。PDF 里没有的信息请手动填一次，之后重新解析 PDF 也会保留。所有信息只存在本机浏览器里。</p>
+
+    <div class="pdf-box">
+      <label for="pdf-file">PDF 简历</label>
+      <div class="pdf-row">
+        <input id="pdf-file" type="file" accept="application/pdf,.pdf">
+        <button class="ghost" id="parse-btn" type="button">解析 PDF</button>
+      </div>
+      <div id="pdf-hint">支持文字版 PDF，解析结果会填入下方表单</div>
+    </div>
+
+    <form id="resume-form">
+      <h2>基本信息</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="name">姓名</label>
+          <input id="name" type="text" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="gender">性别</label>
+          <select id="gender">
+            <option value="">未填写</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lastPinyin">姓（拼音）</label>
+          <input id="lastPinyin" type="text" placeholder="如：Zhang">
+        </div>
+        <div class="field">
+          <label for="firstPinyin">名（拼音）</label>
+          <input id="firstPinyin" type="text" placeholder="如：Xiaoming">
+        </div>
+        <div class="field">
+          <label for="englishName">英文名（选填）</label>
+          <input id="englishName" type="text" placeholder="如：Tom">
+        </div>
+        <div class="field">
+          <label for="birth">出生日期</label>
+          <input id="birth" type="date">
+        </div>
+        <div class="field">
+          <label for="phone">手机</label>
+          <input id="phone" type="tel" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label for="email">邮箱</label>
+          <input id="email" type="email" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="wechat">微信 / QQ</label>
+          <input id="wechat" type="text">
+        </div>
+        <div class="field">
+          <label for="nationality">国籍</label>
+          <input id="nationality" type="text" placeholder="中国">
+        </div>
+        <div class="field">
+          <label for="ethnicity">民族</label>
+          <input id="ethnicity" type="text" placeholder="如：汉族">
+        </div>
+        <div class="field">
+          <label for="politics">政治面貌</label>
+          <select id="politics">
+            <option value="">未填写</option>
+            <option value="共青团员">共青团员</option>
+            <option value="中共党员">中共党员</option>
+            <option value="中共预备党员">中共预备党员</option>
+            <option value="群众">群众</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="marital">婚姻状况</label>
+          <select id="marital">
+            <option value="">未填写</option>
+            <option value="未婚">未婚</option>
+            <option value="已婚">已婚</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="hukou">户口所在地 / 籍贯</label>
+          <input id="hukou" type="text" placeholder="如：广东省广州市">
+        </div>
+        <div class="field">
+          <label for="currentCity">现居城市</label>
+          <input id="currentCity" type="text" placeholder="不填则用户口所在地">
+        </div>
+        <div class="field">
+          <label for="address">通信地址</label>
+          <input id="address" type="text" placeholder="如：广东省广州市天河区 XX 路 XX 号；不填则用现居城市">
+        </div>
+        <div class="field">
+          <label for="idNumber">身份证号（选填，只存本机）</label>
+          <input id="idNumber" type="text" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="homepage">个人主页（选填）</label>
+          <input id="homepage" type="text" placeholder="GitHub / B站 / 博客链接">
+        </div>
+        <div class="field">
+          <label for="portfolio">作品链接（选填）</label>
+          <input id="portfolio" type="text" placeholder="网盘 / 作品集链接">
+        </div>
+      </div>
+
+      <h2>求职意向</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="expectedJob">意向岗位</label>
+          <input id="expectedJob" type="text" placeholder="如：前端开发">
+        </div>
+        <div class="field">
+          <label for="expectedCity">意向工作城市</label>
+          <input id="expectedCity" type="text" placeholder="如：深圳">
+        </div>
+        <div class="field">
+          <label for="expectedSalary">期望薪资</label>
+          <input id="expectedSalary" type="text" placeholder="如：面议 / 300元/天">
+        </div>
+        <div class="field">
+          <label for="gradYear">毕业届别</label>
+          <input id="gradYear" type="text" placeholder="如：2027届">
+        </div>
+        <div class="field">
+          <label for="availableDate">最快到岗时间</label>
+          <input id="availableDate" type="date">
+        </div>
+        <div class="field">
+          <label for="internDays">每周可实习天数</label>
+          <input id="internDays" type="text" placeholder="如：5天">
+        </div>
+        <div class="field">
+          <label for="internMonths">可实习时长</label>
+          <input id="internMonths" type="text" placeholder="如：6个月">
+        </div>
+      </div>
+
+      <h2>教育经历<span class="muted">本科、硕士各填一段；「最高学历」会自动取最高的那段</span></h2>
+      <div id="edu-list"></div>
+      <button class="ghost add-exp" id="add-edu" type="button">＋ 添加一段教育经历</button>
+
+      <h2>实习 / 工作经历<span class="muted">每一段会填到网申页的一条，不够时自动点「添加」</span></h2>
+      <div id="exp-list"></div>
+      <button class="ghost add-exp" id="add-exp" type="button">＋ 添加一段经历</button>
+
+      <h2>项目经历</h2>
+      <div id="proj-list"></div>
+      <button class="ghost add-exp" id="add-proj" type="button">＋ 添加一个项目</button>
+
+      <h2>校园经历<span class="muted">学生会、社团、学生干部、社会实践</span></h2>
+      <div id="campus-list"></div>
+      <button class="ghost add-exp" id="add-campus" type="button">＋ 添加一段校园经历</button>
+
+      <h2>获奖情况</h2>
+      <div id="award-list"></div>
+      <button class="ghost add-exp" id="add-award" type="button">＋ 添加一个奖项</button>
+
+      <h2>语言能力</h2>
+      <div id="lang-list"></div>
+      <button class="ghost add-exp" id="add-lang" type="button">＋ 添加一门语言</button>
+
+      <h2>证书</h2>
+      <div id="cert-list"></div>
+      <button class="ghost add-exp" id="add-cert" type="button">＋ 添加一个证书</button>
+
+      <h2>其他</h2>
+      <div class="field">
+        <label for="skills">技能</label>
+        <textarea id="skills"></textarea>
+      </div>
+      <div class="field">
+        <label for="summary">自我评价</label>
+        <textarea id="summary"></textarea>
+      </div>
+
+      <button class="submit" type="submit">保存</button>
+      <button class="ghost sync" id="sync-btn" type="button">保存并同步到求职助手</button>
+      <div class="sync-hint" id="sync-hint">同步后求职助手的 AI 匹配和 AI 顾问会用这份简历；手机号、身份证号、住址等隐私信息不会同步</div>
+      <div class="toast" id="toast"></div>
+    </form>
+  </div>
+
+  <template id="edu-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>学校</label>
+          <input type="text" data-k="school">
+        </div>
+        <div class="field">
+          <label>学院</label>
+          <input type="text" data-k="college" placeholder="如：信息科学与技术学院">
+        </div>
+        <div class="field">
+          <label>专业</label>
+          <input type="text" data-k="major">
+        </div>
+        <div class="field">
+          <label>学历</label>
+          <select data-k="degree">
+            <option value="">未填写</option>
+            <option value="大专">大专</option>
+            <option value="本科">本科</option>
+            <option value="硕士">硕士</option>
+            <option value="博士">博士</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>入学时间</label>
+          <input type="month" data-k="start">
+        </div>
+        <div class="field">
+          <label>毕业时间</label>
+          <input type="month" data-k="end">
+        </div>
+        <div class="field">
+          <label>学习形式</label>
+          <select data-k="form">
+            <option value="">未填写</option>
+            <option value="全日制">全日制</option>
+            <option value="非全日制">非全日制</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>学校所在地</label>
+          <input type="text" data-k="schoolCity" placeholder="如：广东省广州市">
+        </div>
+        <div class="field">
+          <label>GPA / 绩点（选填）</label>
+          <input type="text" data-k="gpa" placeholder="如：3.6/4.0">
+        </div>
+        <div class="field">
+          <label>专业排名（选填）</label>
+          <input type="text" data-k="rank" placeholder="如：5/120 或 前10%">
+        </div>
+      </div>
+      <div class="field">
+        <label>主修课程（选填）</label>
+        <textarea class="small" data-k="courses"></textarea>
+      </div>
+    </div>
+  </template>
+
+  <template id="exp-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>单位名称</label>
+          <input type="text" data-k="company">
+        </div>
+        <div class="field">
+          <label>职位</label>
+          <input type="text" data-k="title">
+        </div>
+        <div class="field">
+          <label>所在部门</label>
+          <input type="text" data-k="department" placeholder="如：产品部 / 数据组">
+        </div>
+        <div class="field">
+          <label>开始时间</label>
+          <input type="month" data-k="start">
+        </div>
+        <div class="field">
+          <label>结束时间</label>
+          <input type="month" data-k="end">
+          <label class="inline"><input type="checkbox" data-k="untilNow">至今</label>
+        </div>
+        <div class="field">
+          <label>所在行业</label>
+          <input type="text" data-k="industry" placeholder="如：互联网 / 游戏">
+        </div>
+        <div class="field">
+          <label>工作地点</label>
+          <input type="text" data-k="location" placeholder="如：上海">
+        </div>
+      </div>
+      <div class="field">
+        <label>工作内容 / 职责</label>
+        <textarea data-k="description"></textarea>
+      </div>
+    </div>
+  </template>
+
+  <template id="proj-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>项目名称</label>
+          <input type="text" data-k="name">
+        </div>
+        <div class="field">
+          <label>担任角色</label>
+          <input type="text" data-k="title">
+        </div>
+        <div class="field">
+          <label>开始时间</label>
+          <input type="month" data-k="start">
+        </div>
+        <div class="field">
+          <label>结束时间</label>
+          <input type="month" data-k="end">
+          <label class="inline"><input type="checkbox" data-k="untilNow">至今</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>项目描述</label>
+        <textarea data-k="description"></textarea>
+      </div>
+    </div>
+  </template>
+
+  <template id="campus-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>组织 / 社团</label>
+          <input type="text" data-k="company" placeholder="如：校学生会">
+        </div>
+        <div class="field">
+          <label>担任职务</label>
+          <input type="text" data-k="title" placeholder="如：宣传部部长">
+        </div>
+        <div class="field">
+          <label>开始时间</label>
+          <input type="month" data-k="start">
+        </div>
+        <div class="field">
+          <label>结束时间</label>
+          <input type="month" data-k="end">
+          <label class="inline"><input type="checkbox" data-k="untilNow">至今</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>经历描述</label>
+        <textarea class="small" data-k="description"></textarea>
+      </div>
+    </div>
+  </template>
+
+  <template id="award-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field full">
+          <label>奖项名称</label>
+          <input type="text" data-k="name" placeholder="如：校级一等奖学金">
+        </div>
+        <div class="field">
+          <label>获奖时间</label>
+          <input type="month" data-k="date">
+        </div>
+        <div class="field">
+          <label>级别</label>
+          <select data-k="level">
+            <option value="">未填写（按院级）</option>
+            <option value="国家级">国家级</option>
+            <option value="省级">省级</option>
+            <option value="市级">市级</option>
+            <option value="校级">校级</option>
+            <option value="院级">院级</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="lang-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>语种</label>
+          <input type="text" data-k="language" placeholder="如：英语">
+        </div>
+        <div class="field">
+          <label>掌握程度</label>
+          <select data-k="level">
+            <option value="">未填写</option>
+            <option value="一般">一般</option>
+            <option value="良好">良好</option>
+            <option value="熟练">熟练</option>
+            <option value="精通">精通</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>证书 / 考试</label>
+          <input type="text" data-k="cert" placeholder="如：CET-6 / 雅思 / 托福">
+        </div>
+        <div class="field">
+          <label>成绩</label>
+          <input type="text" data-k="score" placeholder="如：560">
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="cert-template">
+    <div class="exp-card">
+      <div class="exp-head">
+        <span class="exp-title"></span>
+        <button class="link" type="button" data-act="del">删除</button>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>证书名称</label>
+          <input type="text" data-k="name" placeholder="如：计算机二级">
+        </div>
+        <div class="field">
+          <label>获得时间</label>
+          <input type="month" data-k="date">
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="lib/pdf.min.js"></script>
+  <script src="parse.js"></script>
+  <script src="jobhunter.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
