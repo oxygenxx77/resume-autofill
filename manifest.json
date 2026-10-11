@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "简历自动填充",
-  "version": "3.2",
+  "version": "3.3",
   "description": "解析 PDF 简历并一键填入招聘网站表单",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],

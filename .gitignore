@@ -9,6 +9,7 @@
 !/icons/
 !/lib/
 !/docs/
+!/.cursor/
 
 .DS_Store
 *.bak

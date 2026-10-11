@@ -59,6 +59,33 @@ function summarize(results) {
   return text + '。请核对后再提交';
 }
 
+// 填充报告：哪些字段没填上、哪些标签不认识（简历内容已换成占位符），交给求职助手汇总；
+// 求职助手没开时先存在本地，下次连上再补发
+const REPORT_QUEUE = 'fillReports';
+const MAX_QUEUED_REPORTS = 30;
+
+async function flushReports(extra) {
+  const store = await chrome.storage.local.get(REPORT_QUEUE);
+  const queue = (store[REPORT_QUEUE] || []).concat(extra || []).slice(-MAX_QUEUED_REPORTS);
+  if (!queue.length) return;
+  // 先落盘再发：弹窗随时可能被关掉，发到一半的报告不能丢
+  if (extra && extra.length) await chrome.storage.local.set({ [REPORT_QUEUE]: queue });
+  try {
+    await jobHunter('/api/autofill/report', { body: { reports: queue }, timeout: 3000 });
+    await chrome.storage.local.set({ [REPORT_QUEUE]: [] });
+  } catch (error) {
+    // 连不上就留着下次发；求职助手明确拒收的不再重试，免得堵住后面的报告
+    if (!/连接不上|超时/.test(error.message)) await chrome.storage.local.set({ [REPORT_QUEUE]: [] });
+  }
+}
+
+function queueReports(results) {
+  const reports = results.map((r) => r.result && r.result.report)
+    .filter((rep) => rep && (rep.filled || rep.failed.length || rep.leftover.length))
+    .map((rep) => Object.assign(rep, { job_id: jh.job ? jh.job.id : null }));
+  if (reports.length) flushReports(reports);
+}
+
 // 导出诊断信息：页面结构 + 上次填充记录，复制后发给开发者
 const diagBtn = document.getElementById('diag-btn');
 const diagOut = document.getElementById('diag-out');
@@ -111,6 +138,7 @@ fillBtn.addEventListener('click', async () => {
       results = await runFill(tab.id, false, overrides);
     }
     statusEl.textContent = summarize(results || []);
+    queueReports(results || []);
     if (overrides && jh.job) {
       const used = [overrides.expectedJob && '应聘岗位', overrides.expectedCity && '意向城市', overrides.summary && 'AI 自我评价'].filter(Boolean);
       statusEl.textContent += '（' + used.join('、') + '已按「' + jh.job.company + '」这个岗位填写）';
@@ -157,6 +185,7 @@ async function initJobHunter() {
     $('jh-offline').hidden = false;
     return;
   }
+  flushReports();
 
   const store = await chrome.storage.local.get(['jhPicks', 'jhDrafts']);
   jh.picks = store.jhPicks || {};

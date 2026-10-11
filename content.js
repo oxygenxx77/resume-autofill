@@ -540,7 +540,10 @@
           bestScore = s;
         }
       }
-      if (!best) return false;
+      if (!best) {
+        dateTrace.push('choice miss ' + [...el.options].slice(0, 12).map((o) => norm(o.textContent)).join(','));
+        return false;
+      }
       el.value = best.value;
       el.dispatchEvent(new Event('input', { bubbles: true }));
       el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1311,6 +1314,7 @@
       key,
       ok,
       error,
+      want: v.slice(0, 30),
       trace: dateTrace.join(' | ').slice(0, 400),
       via: DATE_KEYS.has(key) || isDateControl(el) ? 'date' : AREA_KEYS.has(key) && isSelectControl(el) ? 'cascade'
         : isSelectControl(el) || !isEditable(el) ? 'choice' : 'text'
@@ -1884,7 +1888,103 @@
 
     window.__resumeAutofillLastLog = fillLog;
     const missed = [...new Set(fillLog.filter((f) => !f.ok).map((f) => f.label || f.key))];
-    return { filled, stats, missed, expInResume: r.exp.length };
+    let report = null;
+    try {
+      report = buildReport(resume, r, stats, filled);
+    } catch (e) { /* 报告只用于改进规则，出错不影响填充结果 */ }
+    return { filled, stats, missed, expInResume: r.exp.length, report };
+  }
+
+  // ---------- 填充报告：没填上的、不认识的字段记下来，交给求职助手汇总，用来改规则 ----------
+
+  // 固定选项和日期不算隐私，保留下来才能排查下拉和日期面板；其余简历文字一律换成占位符
+  const PUBLIC_KEYS = new Set(['gender', 'degree', 'academicDegree', 'politics', 'marital', 'ethnicity', 'nationality',
+    'studyForm', 'form', 'idType', 'workYears', 'level', 'language', 'cert', 'score', 'gradYear', 'englishLevel', 'untilNow']);
+  const DATE_LIKE = /^\d{4}([.\-/年]\d{1,2}([.\-/月]\d{1,2})?日?)?$|^至今$/;
+
+  function secretsOf(resume) {
+    const out = new Set();
+    const keep = (s) => s.length >= 2 && !DATE_LIKE.test(s) && !/^\d{1,4}$/.test(s);
+    const walk = (v, key) => {
+      if (v == null || PUBLIC_KEYS.has(key)) return;
+      if (Array.isArray(v)) return v.forEach((x) => walk(x, key));
+      if (typeof v === 'object') return Object.entries(v).forEach(([k, x]) => walk(x, k));
+      const s = String(v).trim();
+      if (!keep(s)) return;
+      out.add(s);
+      s.split(/[\s/、，,|；;·()（）\n]+/).filter(keep).forEach((p) => out.add(p));
+    };
+    walk(resume, '');
+    return [...out].sort((a, b) => b.length - a.length);
+  }
+
+  function makeRedact(resume) {
+    const secrets = secretsOf(resume);
+    return (text) => {
+      let t = String(text || '');
+      for (const s of secrets) if (t.includes(s)) t = t.split(s).join('‹简历›');
+      return t;
+    };
+  }
+
+  // 填完之后控件上还是空的（自定义下拉 / 日期看框上显示的文字）
+  function isBlank(el) {
+    if (el.tagName === 'SELECT') return !el.value;
+    if (isEditable(el) && el.type !== 'hidden' && !isSelectControl(el) && !isDateControl(el)) return !String(el.value || '').trim();
+    const label = norm(labelOf(el));
+    const shown = norm(fieldText(el)).replace(/请(选择|输入|填写)/g, '').replace(label, '');
+    return !shown || shown === norm(el.placeholder).replace(/请(选择|输入|填写)/g, '');
+  }
+
+  function isRequired(el) {
+    if (el.required || el.getAttribute('aria-required') === 'true') return true;
+    const item = el.closest(ITEM_SEL);
+    if (!item) return false;
+    return /^[*＊]/.test((item.innerText || '').trim()) || !!item.querySelector('[class*="required" i]');
+  }
+
+  function leftovers(r, redact) {
+    const failedLabels = new Set(fillLog.filter((f) => !f.ok).map((f) => f.label + '|' + f.key));
+    const groups = new Map();
+    for (const el of allControls()) {
+      if (!isBlank(el)) continue;
+      const label = labelOf(el);
+      if (!label || SKIP_LABEL.test(label)) continue;
+      const key = controlKey(el, ALL_DICT) || '';
+      if (failedLabels.has(label + '|' + key)) continue;
+      const kind = !key ? 'unknown' : key in BASIC_DICT && !String(r[key] || '').trim() ? 'no-data' : 'empty';
+      const id = kind + '|' + key + '|' + label;
+      const prev = groups.get(id);
+      if (prev) {
+        prev.n += 1;
+        prev.required = prev.required || isRequired(el);
+        continue;
+      }
+      groups.set(id, {
+        kind, key, label: redact(label), n: 1, required: isRequired(el),
+        tag: el.tagName.toLowerCase(), type: el.type || '', ph: redact(el.placeholder || '').slice(0, 40),
+        select: isSelectControl(el), date: isDateControl(el), chain: chainOf(el)
+      });
+    }
+    return [...groups.values()].slice(0, 80);
+  }
+
+  function buildReport(resume, r, stats, filled) {
+    const redact = makeRedact(resume);
+    return {
+      version: VERSION,
+      host: location.host,
+      path: location.pathname,
+      frame: window === window.top ? 'top' : 'iframe',
+      at: Date.now(),
+      filled,
+      stats,
+      failed: fillLog.filter((f) => !f.ok).slice(0, 80).map((f) => ({
+        label: redact(f.label), key: f.key, via: f.via || '', error: redact(f.error), trace: redact(f.trace),
+        want: f.want && (PUBLIC_KEYS.has(f.key) || DATE_LIKE.test(f.want)) ? f.want : f.want ? '‹简历›' : ''
+      })),
+      leftover: leftovers(r, redact)
+    };
   }
 
   // ---------- 诊断：填不上时导出页面结构，方便针对具体网站修 ----------
