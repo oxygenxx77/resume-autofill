@@ -50,3 +50,7 @@ resume-autofill/
 
 - 简历只存在浏览器本地（`chrome.storage.local`），扩展不向任何服务器上传数据
 - 唯一的网络请求是本机的求职助手（`127.0.0.1`），且同步简历时不带手机号、邮箱、身份证号和住址
+
+## 许可证
+
+[MIT](LICENSE)。`lib/` 下的 [pdf.js](https://github.com/mozilla/pdf.js) 遵循它自己的 Apache-2.0 许可证。
